@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Cuaca Sederhana</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .weather-container {
+            background-color: #fff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 300px;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #5c67f2;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #4a54e1;
+        }
+
+        .weather-info {
+            margin-top: 25px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .city {
+            font-size: 24px;
+            font-weight: bold;
+            color: #5c67f2;
+            margin-bottom: 5px;
+        }
+
+        .temperature {
+            font-size: 48px;
+            color: #e94e77;
+            margin: 10px 0;
+        }
+
+        .description {
+            font-size: 18px;
+            color: #666;
+            text-transform: capitalize;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="weather-container">
+        <h2>Cek Cuaca</h2>
+        <input type="text" id="city-input" placeholder="Masukkan Nama Kota (mis: Jakarta)">
+        <button onclick="getWeather()">Cari Cuaca</button>
+
+        <div class="weather-info" id="weather-result">
+            <p>Masukkan nama kota di atas.</p>
+        </div>
+    </div>
+
+    <script>
+        const API_KEY = '0c000f436dbbb6d70fbe9bef7984bb54';
+        const BASE_URL = 'https://api.openweathermap.org/data/2.5/weather';
+        const resultDiv = document.getElementById('weather-result');
+
+        async function getWeather() {
+            const city = document.getElementById('city-input').value.trim();
+
+            if (!city) {
+                resultDiv.innerHTML = '<p style="color: red;">Mohon masukkan nama kota!</p>';
+                return;
+            }
+
+            // Tampilkan loading state
+            resultDiv.innerHTML = '<p>Memuat data cuaca...</p>';
+
+            const url = `${BASE_URL}?q=${city}&appid=${API_KEY}&units=metric&lang=id`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayWeather(data);
+                } else {
+                    // Penanganan error dari API (misalnya kota tidak ditemukan)
+                    resultDiv.innerHTML = `<p style="color: red;">Error: ${data.message || 'Kota tidak ditemukan.'}</p>`;
+                }
+
+            } catch (error) {
+                console.error('Fetch error:', error);
+                resultDiv.innerHTML = '<p style="color: red;">Terjadi kesalahan saat mengambil data. Cek koneksi internet atau konsol.</p>';
+            }
+        }
+
+        function displayWeather(data) {
+            const city = data.name;
+            // Konversi suhu dari Kelvin ke Celsius sudah diatasi dengan &units=metric di URL
+            const temp = Math.round(data.main.temp);
+            const description = data.weather[0].description;
+            const iconCode = data.weather[0].icon;
+            const iconUrl = `http://openweathermap.org/img/wn/${iconCode}@2x.png`;
+
+            resultDiv.innerHTML = `
+                <div class="city">${city}</div>
+                <img src="${iconUrl}" alt="${description}" style="width: 80px;">
+                <div class="temperature">${temp}°C</div>
+                <div class="description">${description}</div>
+                <p>Kecepatan Angin: ${data.wind.speed} m/s</p>
+                <p>Kelembaban: ${data.main.humidity}%</p>
+            `;
+        }
+    </script>
+
+</body>
+</html>
