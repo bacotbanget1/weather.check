@@ -3,110 +3,242 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aplikasi Cuaca Sederhana</title>
+    <title>website pengecekan cuaca buatan rehan</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
+        /* Variabel CSS untuk kemudahan perubahan tema */
+        :root {
+            --primary-color: #4A90E2; /* Biru langit */
+            --secondary-color: #50E3C2; /* Hijau mint */
+            --bg-color: #E6F3FF; /* Background biru muda */
+            --card-bg: #FFFFFF;
+            --text-dark: #333333;
+            --text-light: #666666;
+            --error-color: #FF6B6B;
+        }
+
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f4f9;
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-color);
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             margin: 0;
+            overflow-x: hidden;
+            transition: background-color 0.5s ease;
+        }
+        
+        /* Animasi Latar Belakang Sederhana */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .weather-container {
-            background-color: #fff;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 20px; /* Lebih bulat dan modern */
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
             text-align: center;
-            width: 300px;
+            width: 320px;
+            max-width: 90%;
+            animation: fadeIn 0.8s ease-out;
+            border: 1px solid #e0e0e0;
         }
 
         h2 {
-            color: #333;
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            font-weight: 700;
+        }
+
+        /* Grouping Input dan Button */
+        .input-group {
+            display: flex;
+            gap: 10px;
             margin-bottom: 20px;
         }
 
         input[type="text"] {
-            width: calc(100% - 22px);
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
+            flex-grow: 1;
+            padding: 12px 15px;
+            border: 2px solid #e0eeef;
+            border-radius: 10px;
             box-sizing: border-box;
+            font-size: 16px;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 8px rgba(74, 144, 226, 0.2);
+            outline: none;
         }
 
         button {
-            width: 100%;
-            padding: 10px;
-            background-color: #5c67f2;
+            padding: 12px 20px;
+            background-color: var(--primary-color);
             color: white;
             border: none;
-            border-radius: 6px;
+            border-radius: 10px;
             cursor: pointer;
             font-size: 16px;
-            transition: background-color 0.3s;
+            font-weight: 600;
+            transition: background-color 0.3s, transform 0.1s;
         }
 
         button:hover {
-            background-color: #4a54e1;
+            background-color: #3B7ADF;
         }
 
+        button:active {
+            transform: scale(0.98); /* Efek klik */
+        }
+
+        /* --- Tampilan Hasil Cuaca --- */
+
         .weather-info {
-            margin-top: 25px;
-            padding-top: 15px;
-            border-top: 1px solid #eee;
+            margin-top: 30px;
+            padding: 20px 0;
+            border-top: 1px dashed #e0e0e0;
+            opacity: 0;
+            transform: scale(0.95);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+        }
+
+        .weather-info.show {
+            opacity: 1;
+            transform: scale(1);
         }
 
         .city {
-            font-size: 24px;
-            font-weight: bold;
-            color: #5c67f2;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-dark);
             margin-bottom: 5px;
         }
 
         .temperature {
-            font-size: 48px;
-            color: #e94e77;
-            margin: 10px 0;
+            font-size: 60px;
+            font-weight: 300; /* Tipis untuk tampilan modern */
+            color: var(--secondary-color);
+            margin: 10px 0 5px 0;
+            letter-spacing: -2px;
         }
 
         .description {
             font-size: 18px;
-            color: #666;
+            color: var(--text-light);
             text-transform: capitalize;
+            margin-bottom: 20px;
+        }
+        
+        .icon-large {
+            width: 100px;
+            height: 100px;
+            animation: float 4s ease-in-out infinite; /* Animasi ikon */
+        }
+
+        /* Animasi Ikon Cuaca */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Detail Cuaca menggunakan Grid untuk responsivitas */
+        .weather-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px 5px;
+            background: #F8F8F8;
+            border-radius: 8px;
+            font-size: 14px;
+            color: var(--text-dark);
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-top: 3px;
+        }
+
+        /* Responsif Sederhana */
+        @media (max-width: 400px) {
+            .input-group {
+                flex-direction: column;
+            }
+            button {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
 
     <div class="weather-container">
-        <h2>Cek Cuaca</h2>
-        <input type="text" id="city-input" placeholder="Masukkan Nama Kota (mis: Jakarta)">
-        <button onclick="getWeather()">Cari Cuaca</button>
+        <h2>Cek Cuaca Instan 🌐</h2>
+        <div class="input-group">
+            <input type="text" id="city-input" placeholder="Masukkan Nama Kota (mis: Jakarta)" onkeydown="if(event.key === 'Enter') getWeather()">
+            <button onclick="getWeather()">Cari</button>
+        </div>
 
         <div class="weather-info" id="weather-result">
-            <p>Masukkan nama kota di atas.</p>
+            <p style="color: var(--text-light);">✨ Mulai dengan mencari nama kota di atas.</p>
         </div>
     </div>
 
     <script>
+        // Gunakan API Key yang valid dari kode Anda (sudah saya masukkan di sini)
         const API_KEY = '0c000f436dbbb6d70fbe9bef7984bb54';
         const BASE_URL = 'https://api.openweathermap.org/data/2.5/weather';
         const resultDiv = document.getElementById('weather-result');
+        const container = document.querySelector('.weather-container');
+
+        // Fungsi untuk mengubah tema latar belakang berdasarkan cuaca
+        function setBackgroundTheme(weatherMain) {
+            let bgColor = '#E6F3FF'; // Default
+            
+            // Logika sederhana untuk tema
+            if (weatherMain.includes('Clear')) {
+                bgColor = '#87CEEB'; // Langit Cerah
+            } else if (weatherMain.includes('Clouds')) {
+                bgColor = '#B0C4DE'; // Mendung
+            } else if (weatherMain.includes('Rain') || weatherMain.includes('Drizzle')) {
+                bgColor = '#778899'; // Hujan
+            } else if (weatherMain.includes('Thunderstorm')) {
+                bgColor = '#4F4F4F'; // Badai
+            } else if (weatherMain.includes('Snow')) {
+                bgColor = '#F0FFFF'; // Salju
+            }
+
+            document.body.style.backgroundColor = bgColor;
+        }
+
 
         async function getWeather() {
             const city = document.getElementById('city-input').value.trim();
+            resultDiv.classList.remove('show'); // Sembunyikan hasil saat loading
 
             if (!city) {
-                resultDiv.innerHTML = '<p style="color: red;">Mohon masukkan nama kota!</p>';
+                resultDiv.innerHTML = `<p style="color: var(--error-color);">❌ Mohon masukkan nama kota!</p>`;
+                resultDiv.classList.add('show');
                 return;
             }
 
-            // Tampilkan loading state
-            resultDiv.innerHTML = '<p>Memuat data cuaca...</p>';
+            // Tampilkan loading state dengan animasi
+            resultDiv.innerHTML = `<p style="color: var(--primary-color);">🔍 Mencari data cuaca untuk ${city}...</p>`;
+            resultDiv.classList.add('show');
 
             const url = `${BASE_URL}?q=${city}&appid=${API_KEY}&units=metric&lang=id`;
 
@@ -116,33 +248,56 @@
 
                 if (response.ok) {
                     displayWeather(data);
+                    setBackgroundTheme(data.weather[0].main); // Atur tema setelah data diterima
                 } else {
                     // Penanganan error dari API (misalnya kota tidak ditemukan)
-                    resultDiv.innerHTML = `<p style="color: red;">Error: ${data.message || 'Kota tidak ditemukan.'}</p>`;
+                    resultDiv.innerHTML = `<p style="color: var(--error-color);">❌ Error: ${data.message.toUpperCase() || 'Kota tidak ditemukan.'}</p>`;
+                    // Kembalikan tema default jika gagal
+                    document.body.style.backgroundColor = 'var(--bg-color)'; 
                 }
 
             } catch (error) {
                 console.error('Fetch error:', error);
-                resultDiv.innerHTML = '<p style="color: red;">Terjadi kesalahan saat mengambil data. Cek koneksi internet atau konsol.</p>';
+                resultDiv.innerHTML = `<p style="color: var(--error-color);">❌ Terjadi kesalahan koneksi. Cek internet Anda.</p>`;
             }
         }
 
         function displayWeather(data) {
             const city = data.name;
-            // Konversi suhu dari Kelvin ke Celsius sudah diatasi dengan &units=metric di URL
             const temp = Math.round(data.main.temp);
             const description = data.weather[0].description;
             const iconCode = data.weather[0].icon;
-            const iconUrl = `http://openweathermap.org/img/wn/${iconCode}@2x.png`;
+            const iconUrl = `https://openweathermap.org/img/wn/${iconCode}@2x.png`;
 
+            // Tampilkan detail cuaca dalam format grid yang elegan
             resultDiv.innerHTML = `
                 <div class="city">${city}</div>
-                <img src="${iconUrl}" alt="${description}" style="width: 80px;">
+                <img src="${iconUrl}" alt="${description}" class="icon-large">
                 <div class="temperature">${temp}°C</div>
                 <div class="description">${description}</div>
-                <p>Kecepatan Angin: ${data.wind.speed} m/s</p>
-                <p>Kelembaban: ${data.main.humidity}%</p>
+                
+                <div class="weather-details">
+                    <div class="detail-item">
+                        Angin
+                        <span class="detail-value">${data.wind.speed} m/s</span>
+                    </div>
+                    <div class="detail-item">
+                        Kelembaban
+                        <span class="detail-value">${data.main.humidity}%</span>
+                    </div>
+                    <div class="detail-item">
+                        Tekanan
+                        <span class="detail-value">${data.main.pressure} hPa</span>
+                    </div>
+                    <div class="detail-item">
+                        Maks/Min
+                        <span class="detail-value">${Math.round(data.main.temp_max)}°/${Math.round(data.main.temp_min)}°</span>
+                    </div>
+                </div>
             `;
+            
+            // Animasi masuk untuk hasil
+            resultDiv.classList.add('show');
         }
     </script>
 
